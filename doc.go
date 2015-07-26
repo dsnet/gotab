@@ -116,8 +116,9 @@ func suggestSymbol(tokRoot, tok, name string) {
 	// Check if name is exported
 	if !unexported {
 		i := strings.LastIndex(name, ".")
-		rune, _ := utf8.DecodeRuneInString(name[i+1:])
-		if !unicode.IsUpper(rune) {
+		r1, _ := utf8.DecodeRuneInString(name)
+		r2, _ := utf8.DecodeRuneInString(name[i+1:])
+		if !unicode.IsUpper(r1) || !unicode.IsUpper(r2) {
 			return
 		}
 	}
