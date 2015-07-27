@@ -21,6 +21,7 @@ package main
 
 import "os"
 import "fmt"
+import "path"
 import "strings"
 import "strconv"
 
@@ -48,6 +49,14 @@ func main() {
 		}
 		os.Exit(0)
 	}
+
+	fmt.Fprintf(os.Stderr, "Error: COMP_LINE and COMP_POINT environment variables not set.\n")
+	fmt.Fprintf(os.Stderr, "\n")
+	fmt.Fprintf(os.Stderr, "Do not call %s directly. Instead, do the following:\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "1. Place this binary in your PATH.\n")
+	fmt.Fprintf(os.Stderr, "2. Place this line in your bashrc file:\n")
+	fmt.Fprintf(os.Stderr, "	complete -C %s -o nospace go\n", path.Base(os.Args[0]))
+
 	os.Exit(1)
 }
 
