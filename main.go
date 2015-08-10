@@ -38,6 +38,8 @@ func main() {
 			switch tok {
 			case "doc":
 				handleDoc(t)
+			default:
+				handleDefault(t)
 			}
 		} else {
 			// Suggest a tool
