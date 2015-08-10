@@ -49,7 +49,7 @@ func handleDoc(t *tokenizer) {
 				// go doc <sym>[.<method>]
 				relPkg := false
 				if cwd, err := os.Getwd(); err == nil {
-					relPkg = suggestPackageContents(cwd, "", tok)
+					relPkg = suggestPackageContents(cwd, "", tok) > 0
 				}
 
 				// go doc <pkg>
@@ -63,7 +63,7 @@ func handleDoc(t *tokenizer) {
 					i += len(root)
 					for _, pkgPath := range makePaths(tok[:i]) {
 						tokRoot, tok := tok[:i+1], tok[i+1:]
-						if suggestPackageContents(pkgPath, tokRoot, tok) {
+						if suggestPackageContents(pkgPath, tokRoot, tok) > 0 {
 							break
 						}
 					}
@@ -71,7 +71,7 @@ func handleDoc(t *tokenizer) {
 			case 1:
 				// go doc <pkg> <sym>[.<method>]
 				for _, pkgPath := range makePaths(args[0]) {
-					if suggestPackageContents(pkgPath, "", tok) {
+					if suggestPackageContents(pkgPath, "", tok) > 0 {
 						break
 					}
 				}
@@ -83,43 +83,43 @@ func handleDoc(t *tokenizer) {
 }
 
 // Parse a package and suggest all symbols found in it.
-func suggestPackageContents(pkgPath, tokRoot, tok string) bool {
+func suggestPackageContents(pkgPath, tokRoot, tok string) (cnt int) {
 	name, pkg := parsePackage(pkgPath)
 	if pkg == nil || (name == "main" && !showCmd) {
-		return false
+		return cnt
 	}
 
 	for _, c := range pkg.Consts {
 		for _, n := range c.Names {
-			suggestSymbol(tokRoot, tok, n)
+			cnt += suggestSymbol(tokRoot, tok, n)
 		}
 	}
 	for _, v := range pkg.Vars {
 		for _, n := range v.Names {
-			suggestSymbol(tokRoot, tok, n)
+			cnt += suggestSymbol(tokRoot, tok, n)
 		}
 	}
 	for _, f := range pkg.Funcs {
-		suggestSymbol(tokRoot, tok, f.Name)
+		cnt += suggestSymbol(tokRoot, tok, f.Name)
 	}
 	for _, t := range pkg.Types {
-		suggestSymbol(tokRoot, tok, t.Name)
+		cnt += suggestSymbol(tokRoot, tok, t.Name)
 		for _, m := range t.Methods {
-			suggestSymbol(tokRoot, tok, t.Name+"."+m.Name)
+			cnt += suggestSymbol(tokRoot, tok, t.Name+"."+m.Name)
 		}
 	}
-	return true
+	return cnt
 }
 
 // Print the symbol as a suggestion.
-func suggestSymbol(tokRoot, tok, name string) {
+func suggestSymbol(tokRoot, tok, name string) (cnt int) {
 	// Check if name is exported
 	if !unexported {
 		i := strings.LastIndex(name, ".")
 		r1, _ := utf8.DecodeRuneInString(name)
 		r2, _ := utf8.DecodeRuneInString(name[i+1:])
 		if !unicode.IsUpper(r1) || !unicode.IsUpper(r2) {
-			return
+			return 0
 		}
 	}
 
@@ -147,14 +147,15 @@ func suggestSymbol(tokRoot, tok, name string) {
 			if unicode.IsLower(u) && simpleFold(u) == simpleFold(p) {
 				continue
 			}
-			return
+			return 0
 		}
 		fmt.Println(tokRoot + tok + name + " ")
 	}
+	return 1
 }
 
 // Suggest packages that tok could possibly be pointing toward.
-func suggestPackages(tok string) {
+func suggestPackages(tok string) (cnt int) {
 	root, base := path.Split(tok)
 	if isDir(tok) {
 		root, base = tok, ""
@@ -173,12 +174,15 @@ func suggestPackages(tok string) {
 			path := path.Join(dirPath, dir)
 			if isPackage(path) {
 				fmt.Println(root + dir + " ")
+				cnt++
 			}
 			if hasPackages(path) {
 				fmt.Println(root + dir + string(os.PathSeparator))
+				cnt++
 			}
 		}
 	}
+	return cnt
 }
 
 // Expand GOROOT and GOPATH with respect to some dirPath.
