@@ -11,7 +11,9 @@ import "io/ioutil"
 import "path"
 
 func handleDefault(t *tokenizer) {
-	if tok, old := t.Next(); !old {
+	if tok, old := t.Next(); old {
+		handleDefault(t)
+	} else {
 		// go <cmd> <pkg>
 		suggestPackages(tok)
 

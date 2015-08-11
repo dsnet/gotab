@@ -34,6 +34,7 @@ func handleDoc(t *tokenizer) {
 		default:
 			args = append(args, tok)
 		}
+		handleDoc(t)
 	} else {
 		if strings.Index(tok, "-") == 0 {
 			// go doc [-u] [-c] [-cmd]
@@ -77,9 +78,7 @@ func handleDoc(t *tokenizer) {
 				}
 			}
 		}
-		return
 	}
-	handleDoc(t)
 }
 
 // Parse a package and suggest all symbols found in it.
