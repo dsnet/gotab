@@ -3,17 +3,17 @@
 ## Introduction ##
 
 This program provides tab completion information for the Go binary. Currently,
-this program only works with the *doc* tool in the *go* binary for version
-1.5.
+this only works with the *doc* tool in the *go* binary for version 1.5.
 
 Furthermore, this only works for bash, but thin wrappers can be used to make it
 work with other shells.
 
 ## Installation ##
 
-1. Build the gotab binary and place it in your *PATH*.
-2. Add the following to your bashrc file:
-```complete -C gotab -o nospace go```
+1. Get and build the binary: ```go get github.com/dsnet/gotab```
+2. If necessary, place ```$GOPATH/bin``` in your ```$PATH```. Otherwise, copy
+the binary from ```$GOPATH/bin/gotab``` to somewhere reachable from ```$PATH```.
+3. Add the following to your bashrc file: ```complete -C gotab -o nospace go```
 
 ## Usage ##
 
