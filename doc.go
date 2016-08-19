@@ -4,18 +4,21 @@
 
 package main
 
-import "os"
-import "fmt"
-import "strings"
-import "io/ioutil"
-import "path"
-import "path/filepath"
-import "unicode"
-import "unicode/utf8"
-import "go/doc"
-import "go/build"
-import "go/token"
-import "go/parser"
+import (
+	"fmt"
+	"go/build"
+	"go/doc"
+	"go/parser"
+	"go/token"
+	"io/ioutil"
+	"log"
+	"os"
+	"path"
+	"path/filepath"
+	"strings"
+	"unicode"
+	"unicode/utf8"
+)
 
 var args []string
 var matchCase = false
@@ -186,6 +189,19 @@ func suggestPackages(tok string) (cnt int) {
 
 // Expand GOROOT and GOPATH with respect to some dirPath.
 func makePaths(dirPath string) (paths []string) {
+	if strings.HasPrefix(dirPath, ".") {
+		cwd, err := os.Getwd()
+		if err != nil {
+			log.Fatal(err)
+		}
+		dirPath = filepath.Join(cwd, dirPath[1:])
+		for _, dir := range filepath.SplitList(build.Default.GOPATH) {
+			if dir != "" && strings.HasPrefix(cwd, dir) {
+				paths = append(paths, dirPath)
+			}
+		}
+		return
+	}
 	// TODO(jtsai): Can dirPath be an absolute path?
 	for _, dir := range filepath.SplitList(build.Default.GOPATH) {
 		if dir != "" {
