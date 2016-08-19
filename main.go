@@ -19,11 +19,13 @@
 // any characters in COMP_LINE that lies beyond COMP_POINT.
 package main
 
-import "os"
-import "fmt"
-import "path"
-import "strings"
-import "strconv"
+import (
+	"fmt"
+	"os"
+	"path"
+	"strconv"
+	"strings"
+)
 
 const cmd = "go"
 
