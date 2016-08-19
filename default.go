@@ -4,11 +4,13 @@
 
 package main
 
-import "os"
-import "fmt"
-import "strings"
-import "io/ioutil"
-import "path"
+import (
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
+	"strings"
+)
 
 func handleDefault(t *tokenizer) {
 	if tok, old := t.Next(); old {
